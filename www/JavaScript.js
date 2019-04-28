@@ -20,7 +20,6 @@ var colorWhite = undefined;
 var colorBlack = undefined;
 var tokenKing = undefined;
 var tokenQueen = undefined;
-
 function onload(){
 	// Init
 	animationStack = new AnimationStack();
@@ -28,8 +27,8 @@ function onload(){
 	canvasContext = elementCanvas.getContext('2d');
 	colorWhite = new Color('#FFF');
 	colorBlack = new Color('#000');
-	tokenKing = [new Position(4, BOARD_SIZE_Y), new Position(4, 1)];
-	tokenQueen = [new Position(2, BOARD_SIZE_Y), new Position(2, 1)];
+	tokenKing = [new Position(2, BOARD_SIZE_Y), new Position(1, 1)];
+	tokenQueen = [new Position(4, BOARD_SIZE_Y), new Position(5, 1)];
 
 	// Code
 	elementCanvas.width = BOARD_SIZE_X*CELL_SIZE;
@@ -38,7 +37,6 @@ function onload(){
 	elementCanvas.classList.remove('hidden');
 	// TODO: On change: animationStack.add(redrawBoard);
 }
-
 function redrawBoard(){
 	canvasContext.clearRect(0, 0, BOARD_SIZE_X*CELL_SIZE, BOARD_SIZE_Y*CELL_SIZE);
 	for(let index_x = 0; index_x < BOARD_SIZE_X; index_x++){
