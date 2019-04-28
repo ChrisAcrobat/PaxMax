@@ -6,3 +6,8 @@ h1{
 	display: block;
 	border: 3px solid burlywood;
 }
+
+.hidden
+{
+	display: none;
+}
