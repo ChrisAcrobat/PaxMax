@@ -34,8 +34,9 @@ function onload(){
 	// Code
 	elementCanvas.width = BOARD_SIZE_X*CELL_SIZE;
 	elementCanvas.height = BOARD_SIZE_Y*CELL_SIZE;
+	redrawBoard();
 	elementCanvas.classList.remove('hidden');
-	animationStack.add(redrawBoard);
+	// TODO: On change: animationStack.add(redrawBoard);
 }
 
 function redrawBoard(){
