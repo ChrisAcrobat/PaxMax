@@ -1,16 +1,29 @@
 'use strict'
 
-// Note-to-self
-// K: 1d 2r
-// Q: 3d 4r
-
 // Pseudo-constants
 const CELL_SIZE = 70;
 const BOARD_SIZE_X = 5;
 const BOARD_SIZE_Y = 9;
 
-const COLOR_PLAYER_1 = 'Red';
-const COLOR_PLAYER_2 = 'Yellow';
+class Side{
+	constructor(color=""){
+		this.colorString = color;
+	}
+}
+class PieceClass{
+	constructor(name="", reachStraight=0, reachDiagonally=0){
+		this.name = name;
+		this.reachStraight = reachStraight;
+		this.reachDiagonally = reachDiagonally;
+	}
+}
+class Piece{
+	constructor(piece=new PieceClass(), side=new Side(), position=new Position()){
+		this.piece = piece;
+		this.side = side;
+		this.position = position;
+	}
+}
 
 // Global variables
 var animationStack = undefined;
@@ -20,6 +33,8 @@ var colorWhite = undefined;
 var colorBlack = undefined;
 var tokenKing = undefined;
 var tokenQueen = undefined;
+var players = new Array();
+var pieces = new Array();
 function onload(){
 	// Init
 	animationStack = new AnimationStack();
@@ -27,8 +42,18 @@ function onload(){
 	canvasContext = elementCanvas.getContext('2d');
 	colorWhite = new Color('#FFF');
 	colorBlack = new Color('#000');
-	tokenKing = [new Position(2, BOARD_SIZE_Y), new Position(1, 1)];
-	tokenQueen = [new Position(4, BOARD_SIZE_Y), new Position(5, 1)];
+
+	let sideRed = new Side("Red");
+	players.push(sideRed);
+	let sideYellow = new Side("Yellow");
+	players.push(sideYellow);
+
+	let classKing = new PieceClass("King", 2, 1);
+	let classQueen = new PieceClass("Queen", 4, 3);
+	pieces.push(new Piece(classKing, sideRed, new Position(2, BOARD_SIZE_Y)));
+	pieces.push(new Piece(classQueen, sideRed, new Position(4, BOARD_SIZE_Y)));
+	pieces.push(new Piece(classKing, sideYellow, new Position(1, 1)));
+	pieces.push(new Piece(classQueen, sideYellow, new Position(5, 1)));
 
 	// Code
 	elementCanvas.width = BOARD_SIZE_X*CELL_SIZE;
@@ -57,15 +82,10 @@ function redrawBoard(){
 	canvasContext.textAlign = 'center';
 	canvasContext.textBaseline = 'middle';
 
-	canvasContext.fillStyle = COLOR_PLAYER_1;
-	canvasContext.fillText('K', (tokenKing[0].X-.5)*CELL_SIZE, (tokenKing[0].Y-.5)*CELL_SIZE + baselineOffset);
-	canvasContext.strokeText('K', (tokenKing[0].X-.5)*CELL_SIZE, (tokenKing[0].Y-.5)*CELL_SIZE + baselineOffset);
-	canvasContext.fillText('Q', (tokenQueen[0].X-.5)*CELL_SIZE, (tokenQueen[0].Y-.5)*CELL_SIZE + baselineOffset);
-	canvasContext.strokeText('Q', (tokenQueen[0].X-.5)*CELL_SIZE, (tokenQueen[0].Y-.5)*CELL_SIZE + baselineOffset);
-
-	canvasContext.fillStyle = COLOR_PLAYER_2;
-	canvasContext.fillText('K', (tokenKing[1].X-.5)*CELL_SIZE, (tokenKing[1].Y-.5)*CELL_SIZE + baselineOffset);
-	canvasContext.strokeText('K', (tokenKing[1].X-.5)*CELL_SIZE, (tokenKing[1].Y-.5)*CELL_SIZE + baselineOffset);
-	canvasContext.fillText('Q', (tokenQueen[1].X-.5)*CELL_SIZE, (tokenQueen[1].Y-.5)*CELL_SIZE + baselineOffset);
-	canvasContext.strokeText('Q', (tokenQueen[1].X-.5)*CELL_SIZE, (tokenQueen[1].Y-.5)*CELL_SIZE + baselineOffset);
+	pieces.forEach(piece => {
+		canvasContext.fillStyle = piece.side.colorString;
+		let symbol = piece.piece.name.substr(0,1);
+		canvasContext.fillText(symbol, (piece.position.X-.5)*CELL_SIZE, (piece.position.Y-.5)*CELL_SIZE + baselineOffset);
+		canvasContext.strokeText(symbol, (piece.position.X-.5)*CELL_SIZE, (piece.position.Y-.5)*CELL_SIZE + baselineOffset);
+	});
 }
