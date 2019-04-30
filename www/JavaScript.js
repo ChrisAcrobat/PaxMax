@@ -39,6 +39,7 @@ function onload(){
 	// Init
 	animationStack = new AnimationStack();
 	elementCanvas = document.getElementById('canvas');
+	elementCanvas.onmousemove = moveEvent;
 	canvasContext = elementCanvas.getContext('2d');
 	colorWhite = new Color('#FFF');
 	colorBlack = new Color('#000');
@@ -61,6 +62,46 @@ function onload(){
 	redrawBoard();
 	elementCanvas.classList.remove('hidden');
 	// TODO: On change: animationStack.add(redrawBoard);
+}
+function moveEvent(event){
+	let pos = getEventPos(event);
+	let x = Math.ceil(pos.X/CELL_SIZE);
+	let y = Math.ceil(pos.Y/CELL_SIZE);
+	if(0 < x && x <= BOARD_SIZE_X && 0 < y && y <= BOARD_SIZE_Y){
+		let cell = new Position(x, y);
+		highlightCell(cell);
+	}
+}
+function highlightCell(cell=new Position()){
+	canvasContext.strokeStyle = "Blue";
+	canvasContext.rect(CELL_SIZE*(cell.X-1), CELL_SIZE*(cell.Y-1), CELL_SIZE, CELL_SIZE);
+	canvasContext.stroke();
+}
+function getEventPos(event, raw=false){
+	if(raw){return new Position(event.offsetX, event.offsetY);}
+
+	let x = undefined;
+	let y = undefined;
+
+	if(event.touches === undefined){
+		x = event.offsetX;
+		y = event.offsetY;
+	}
+	else{
+		let dx = 0;
+		let dy = 0;
+		let length = event.touches.length;
+		for(let index = 0; index < length; index++){
+			let touch = event.touches[index];
+			dx += touch.offsetX;
+			dy += touch.offsetY;
+		}
+
+		x = dx/length;
+		y = dy/length;
+	}
+
+	return new Position(x, y);
 }
 function redrawBoard(){
 	canvasContext.clearRect(0, 0, BOARD_SIZE_X*CELL_SIZE, BOARD_SIZE_Y*CELL_SIZE);
