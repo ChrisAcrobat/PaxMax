@@ -35,6 +35,7 @@ var tokenKing = undefined;
 var tokenQueen = undefined;
 var players = new Array();
 var pieces = new Array();
+var highlightedCells = new Array();
 function onload(){
 	// Init
 	animationStack = new AnimationStack();
@@ -61,7 +62,6 @@ function onload(){
 	elementCanvas.height = BOARD_SIZE_Y*CELL_SIZE;
 	redrawBoard();
 	elementCanvas.classList.remove('hidden');
-	// TODO: On change: animationStack.add(redrawBoard);
 }
 function moveEvent(event){
 	let pos = getEventPos(event);
@@ -69,13 +69,32 @@ function moveEvent(event){
 	let y = Math.ceil(pos.Y/CELL_SIZE);
 	if(0 < x && x <= BOARD_SIZE_X && 0 < y && y <= BOARD_SIZE_Y){
 		let cell = new Position(x, y);
-		highlightCell(cell);
+		highlightedCells.push(cell);
 	}
 }
 function highlightCell(cell=new Position()){
-	canvasContext.strokeStyle = "Blue";
-	canvasContext.rect(CELL_SIZE*(cell.X-1), CELL_SIZE*(cell.Y-1), CELL_SIZE, CELL_SIZE);
-	canvasContext.stroke();
+	let cellPixelPos = new Position(CELL_SIZE*(cell.X-1), CELL_SIZE*(cell.Y-1));
+
+	let sides = [
+		[new Position(cellPixelPos.X, cellPixelPos.Y), new Position(cellPixelPos.X, cellPixelPos.Y + CELL_SIZE)],
+		[new Position(cellPixelPos.X, cellPixelPos.Y + CELL_SIZE), new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y + CELL_SIZE)],
+		[new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y + CELL_SIZE), new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y)],
+		[new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y), new Position(cellPixelPos.X, cellPixelPos.Y)]
+	];
+
+	canvasContext.lineWidth = 5;
+	sides.forEach((side, index) => {
+		let offsetValue = ((Date.now() + CELL_SIZE*index)%(CELL_SIZE*40))/10;
+		var gradient = canvasContext.createLinearGradient(side[0].X + offsetValue, side[0].Y + offsetValue, side[1].X + offsetValue, side[1].Y + offsetValue);
+		gradient.addColorStop(0, "Red");
+		gradient.addColorStop(1, "transparent");
+
+		canvasContext.strokeStyle = gradient;
+		canvasContext.beginPath();
+		canvasContext.moveTo(side[0].X, side[0].Y);
+		canvasContext.lineTo(side[1].X, side[1].Y);
+		canvasContext.stroke();
+	});
 }
 function getEventPos(event, raw=false){
 	if(raw){return new Position(event.offsetX, event.offsetY);}
@@ -129,4 +148,7 @@ function redrawBoard(){
 		canvasContext.fillText(symbol, (piece.position.X-.5)*CELL_SIZE, (piece.position.Y-.5)*CELL_SIZE + baselineOffset);
 		canvasContext.strokeText(symbol, (piece.position.X-.5)*CELL_SIZE, (piece.position.Y-.5)*CELL_SIZE + baselineOffset);
 	});
+
+	highlightedCells.forEach(cell => highlightCell(cell));
+	animationStack.add(redrawBoard);
 }
