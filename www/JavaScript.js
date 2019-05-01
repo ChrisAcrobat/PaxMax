@@ -69,6 +69,7 @@ function moveEvent(event){
 	let y = Math.ceil(pos.Y/CELL_SIZE);
 	if(0 < x && x <= BOARD_SIZE_X && 0 < y && y <= BOARD_SIZE_Y){
 		let cell = new Position(x, y);
+		highlightedCells = new Array();	// TEMP
 		highlightedCells.push(cell);
 	}
 }
