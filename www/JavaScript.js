@@ -139,27 +139,51 @@ function drawPieces(){
 function drawHighlightedCells(){
 	let now = Date.now();
 	highlightedCells.forEach(cell => {
+		canvasContext.lineWidth = 5;
 		let cellPixelPos = new Position(CELL_SIZE*(cell.X-1), CELL_SIZE*(cell.Y-1));
 
-		let sides = [
-			[new Position(cellPixelPos.X, cellPixelPos.Y), new Position(cellPixelPos.X, cellPixelPos.Y + CELL_SIZE)],
-			[new Position(cellPixelPos.X, cellPixelPos.Y + CELL_SIZE), new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y + CELL_SIZE)],
-			[new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y + CELL_SIZE), new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y)],
-			[new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y), new Position(cellPixelPos.X, cellPixelPos.Y)]
-		];
-	
-		canvasContext.lineWidth = 5;
-		sides.forEach((side, index) => {
-			let offsetValue = ((now + CELL_SIZE*index)%(CELL_SIZE*40))/10;
-			var gradient = canvasContext.createLinearGradient(side[0].X + offsetValue, side[0].Y + offsetValue, side[1].X + offsetValue, side[1].Y + offsetValue);
-			gradient.addColorStop(0, 'Red');
-			gradient.addColorStop(1, 'rgba(0,0,0,0)');
-	
-			canvasContext.strokeStyle = gradient;
+		let rotate = false;
+		if(rotate){
+			let sides = [
+				[new Position(cellPixelPos.X, cellPixelPos.Y), new Position(cellPixelPos.X, cellPixelPos.Y + CELL_SIZE)],
+				[new Position(cellPixelPos.X, cellPixelPos.Y + CELL_SIZE), new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y + CELL_SIZE)],
+				[new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y + CELL_SIZE), new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y)],
+				[new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y), new Position(cellPixelPos.X, cellPixelPos.Y)]
+			];
+
+			sides.forEach((side, index) => {
+				let offsetValue = CELL_SIZE*index;
+				offsetValue = (now/10)%CELL_SIZE + offsetValue;
+				var gradient = canvasContext.createLinearGradient(side[0].X + offsetValue, side[0].Y + offsetValue, side[1].X - offsetValue, side[1].Y - offsetValue);
+				gradient.addColorStop(0, 'Red');
+				gradient.addColorStop(1, 'Transparent');
+		
+				canvasContext.strokeStyle = gradient;
+				canvasContext.beginPath();
+				canvasContext.moveTo(side[0].X, side[0].Y);
+				canvasContext.lineTo(side[1].X, side[1].Y);
+				canvasContext.stroke();
+			});
+		}
+		else{
+			let sidePos = [
+				new Position(cellPixelPos.X, cellPixelPos.Y),
+				new Position(cellPixelPos.X, cellPixelPos.Y + CELL_SIZE),
+				new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y + CELL_SIZE),
+				new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y)
+			];
+
+			let nowSlow = now/10;
+			let offsetValue = parseInt(Math.abs((nowSlow%512)-256))/256;
+			canvasContext.strokeStyle = 'rgba(255,0,0,' + offsetValue + ')';
 			canvasContext.beginPath();
-			canvasContext.moveTo(side[0].X, side[0].Y);
-			canvasContext.lineTo(side[1].X, side[1].Y);
+			let startPos = sidePos[3];
+			canvasContext.moveTo(startPos.X, startPos.Y);
+			sidePos.forEach(position => {
+				canvasContext.lineTo(position.X, position.Y);
+			});
+			canvasContext.closePath();
 			canvasContext.stroke();
-		});
+		}
 	});
 }
