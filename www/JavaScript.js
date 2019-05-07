@@ -139,16 +139,17 @@ function drawPieces(){
 function drawHighlightedCells(){
 	let now = Date.now();
 	highlightedCells.forEach(cell => {
-		canvasContext.lineWidth = 5;
+		let halfWidth = 2.5;
+		canvasContext.lineWidth = halfWidth*2;
 		let cellPixelPos = new Position(CELL_SIZE*(cell.X-1), CELL_SIZE*(cell.Y-1));
 
 		let rotate = false;
 		if(rotate){
 			let sides = [
-				[new Position(cellPixelPos.X, cellPixelPos.Y), new Position(cellPixelPos.X, cellPixelPos.Y + CELL_SIZE)],
-				[new Position(cellPixelPos.X, cellPixelPos.Y + CELL_SIZE), new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y + CELL_SIZE)],
-				[new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y + CELL_SIZE), new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y)],
-				[new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y), new Position(cellPixelPos.X, cellPixelPos.Y)]
+				[new Position(cellPixelPos.X + halfWidth, cellPixelPos.Y + halfWidth), new Position(cellPixelPos.X + halfWidth, cellPixelPos.Y + CELL_SIZE - halfWidth)],
+				[new Position(cellPixelPos.X + halfWidth, cellPixelPos.Y + CELL_SIZE - halfWidth), new Position(cellPixelPos.X + CELL_SIZE - halfWidth, cellPixelPos.Y + CELL_SIZE - halfWidth)],
+				[new Position(cellPixelPos.X + CELL_SIZE - halfWidth, cellPixelPos.Y + CELL_SIZE - halfWidth), new Position(cellPixelPos.X + CELL_SIZE - halfWidth, cellPixelPos.Y + halfWidth)],
+				[new Position(cellPixelPos.X + CELL_SIZE - halfWidth, cellPixelPos.Y + halfWidth), new Position(cellPixelPos.X + halfWidth, cellPixelPos.Y + halfWidth)]
 			];
 
 			sides.forEach((side, index) => {
@@ -167,10 +168,10 @@ function drawHighlightedCells(){
 		}
 		else{
 			let sidePos = [
-				new Position(cellPixelPos.X, cellPixelPos.Y),
-				new Position(cellPixelPos.X, cellPixelPos.Y + CELL_SIZE),
-				new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y + CELL_SIZE),
-				new Position(cellPixelPos.X + CELL_SIZE, cellPixelPos.Y)
+				new Position(cellPixelPos.X + halfWidth, cellPixelPos.Y + halfWidth),
+				new Position(cellPixelPos.X + halfWidth, cellPixelPos.Y + CELL_SIZE - halfWidth),
+				new Position(cellPixelPos.X + CELL_SIZE - halfWidth, cellPixelPos.Y + CELL_SIZE - halfWidth),
+				new Position(cellPixelPos.X + CELL_SIZE - halfWidth, cellPixelPos.Y + halfWidth)
 			];
 
 			let nowSlow = now/10;
