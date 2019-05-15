@@ -70,7 +70,7 @@ function moveEvent(event){
 	if(0 < x && x <= BOARD_SIZE_X && 0 < y && y <= BOARD_SIZE_Y){
 		let cell = new Position(x, y);
 		highlightedCells = new Array();	// TEMP
-		highlightedCells.push(cell);
+		highlightedCells.push([cell, new Color(255,0,0)]);
 	}
 }
 function getEventPos(event, raw=false){
@@ -138,13 +138,16 @@ function drawPieces(){
 }
 function drawHighlightedCells(){
 	let now = Date.now();
-	highlightedCells.forEach(cell => {
+	highlightedCells.forEach(highlight => {
+		let cell = highlight[0];
+		let color = highlight[1];
+
 		let halfWidth = 2.5;
 		canvasContext.lineWidth = halfWidth*2;
 		let cellPixelPos = new Position(CELL_SIZE*(cell.X-1), CELL_SIZE*(cell.Y-1));
 
 		let rotate = false;
-		if(rotate){
+		if(rotate){	// TODO: Fix.
 			let sides = [
 				[new Position(cellPixelPos.X + halfWidth, cellPixelPos.Y + halfWidth), new Position(cellPixelPos.X + halfWidth, cellPixelPos.Y + CELL_SIZE - halfWidth)],
 				[new Position(cellPixelPos.X + halfWidth, cellPixelPos.Y + CELL_SIZE - halfWidth), new Position(cellPixelPos.X + CELL_SIZE - halfWidth, cellPixelPos.Y + CELL_SIZE - halfWidth)],
@@ -174,9 +177,14 @@ function drawHighlightedCells(){
 				new Position(cellPixelPos.X + CELL_SIZE - halfWidth, cellPixelPos.Y + halfWidth)
 			];
 
-			let nowSlow = now/10;
-			let offsetValue = parseInt(Math.abs((nowSlow%512)-256))/256;
-			canvasContext.strokeStyle = 'rgba(255,0,0,' + offsetValue + ')';
+			let min = 64;
+			let max = 190;
+		//	let nowSlow = now/10;
+		//	let offsetValue = Math.abs((nowSlow%512)-256)*(max/256) + 256*(min/256);
+			let offsetValue = min + (max-min)*Math.abs(Math.sin(now/1500));
+			color.A = offsetValue;
+			console.log(color.A);
+			canvasContext.strokeStyle = color.toRGBAString();
 			canvasContext.beginPath();
 			let startPos = sidePos[3];
 			canvasContext.moveTo(startPos.X, startPos.Y);
