@@ -183,7 +183,6 @@ function drawHighlightedCells(){
 		//	let offsetValue = Math.abs((nowSlow%512)-256)*(max/256) + 256*(min/256);
 			let offsetValue = min + (max-min)*Math.abs(Math.sin(now/1500));
 			color.A = offsetValue;
-			console.log(color.A);
 			canvasContext.strokeStyle = color.toRGBAString();
 			canvasContext.beginPath();
 			let startPos = sidePos[3];
