@@ -36,6 +36,8 @@ var tokenQueen = undefined;
 var players = new Array();
 var pieces = new Array();
 var highlightedCells = new Array();
+var mouseHoverHighlight = null;
+var mouseHoverHighlightTimeStamp = Date.now();
 function onload(){
 	// Init
 	animationStack = new AnimationStack();
@@ -44,6 +46,7 @@ function onload(){
 	canvasContext = elementCanvas.getContext('2d');
 	colorWhite = new Color('#FFF');
 	colorBlack = new Color('#000');
+	mouseHoverHighlight = new Position();
 
 	let sideRed = new Side('Red');
 	players.push(sideRed);
@@ -69,8 +72,12 @@ function moveEvent(event){
 	let y = Math.ceil(pos.Y/CELL_SIZE);
 	if(0 < x && x <= BOARD_SIZE_X && 0 < y && y <= BOARD_SIZE_Y){
 		let cell = new Position(x, y);
-		highlightedCells = new Array();	// TEMP
-		highlightedCells.push([cell, new Color(255,0,0)]);
+	//	highlightedCells = new Array();	// TEMP
+	//	highlightedCells.push([cell, new Color(255,0,0)]);
+		if(cell.X != mouseHoverHighlight.X || cell.Y != mouseHoverHighlight.Y){
+			mouseHoverHighlight = cell;
+			mouseHoverHighlightTimeStamp = Date.now();
+		}
 	}
 }
 function getEventPos(event, raw=false){
@@ -137,8 +144,12 @@ function drawPieces(){
 	});
 }
 function drawHighlightedCells(){
-	let now = Date.now();
-	highlightedCells.forEach(highlight => {
+	let now = Date.now() - mouseHoverHighlightTimeStamp;
+	let localList = highlightedCells.slice(0);
+	if(mouseHoverHighlight != null){
+		localList.push([mouseHoverHighlight, new Color(0,255,255)]);
+	}
+	localList.forEach(highlight => {
 		let cell = highlight[0];
 		let color = highlight[1];
 
