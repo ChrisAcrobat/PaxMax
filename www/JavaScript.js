@@ -6,8 +6,9 @@ const BOARD_SIZE_X = 5;
 const BOARD_SIZE_Y = 9;
 
 class Side{
-	constructor(color=''){
-		this.colorString = color;
+	constructor(nam='', color=Color()){
+		this.name = name;
+		this.color = color;
 	}
 }
 class PieceClass{
@@ -36,8 +37,10 @@ var tokenQueen = undefined;
 var players = new Array();
 var pieces = new Array();
 var highlightedCells = new Array();
+var selectedToken = null;
 var mouseHoverHighlight = null;
-var mouseHoverHighlightTimeStamp = Date.now();
+var mouseHoverHighlightTimestamp = Date.now();
+var moveTimestamp = Date.now();
 function onload(){
 	// Init
 	animationStack = new AnimationStack();
@@ -48,9 +51,9 @@ function onload(){
 	colorBlack = new Color('#000');
 	mouseHoverHighlight = new Position();
 
-	let sideRed = new Side('Red');
+	let sideRed = new Side('Red', new Color('#F00'));
 	players.push(sideRed);
-	let sideYellow = new Side('Yellow');
+	let sideYellow = new Side('Yellow', new Color('#FF0'));
 	players.push(sideYellow);
 
 	let classKing = new PieceClass('King', 2, 1);
@@ -72,11 +75,9 @@ function moveEvent(event){
 	let y = Math.ceil(pos.Y/CELL_SIZE);
 	if(0 < x && x <= BOARD_SIZE_X && 0 < y && y <= BOARD_SIZE_Y){
 		let cell = new Position(x, y);
-	//	highlightedCells = new Array();	// TEMP
-	//	highlightedCells.push([cell, new Color(255,0,0)]);
 		if(cell.X != mouseHoverHighlight.X || cell.Y != mouseHoverHighlight.Y){
 			mouseHoverHighlight = cell;
-			mouseHoverHighlightTimeStamp = Date.now();
+			mouseHoverHighlightTimestamp = Date.now() + 1500;
 		}
 	}
 }
@@ -109,9 +110,10 @@ function getEventPos(event, raw=false){
 function redrawBoard(){
 	canvasContext.clearRect(0, 0, BOARD_SIZE_X*CELL_SIZE, BOARD_SIZE_Y*CELL_SIZE);
 
+	let now = Date.now();
 	drawCheckerboard();
 	drawPieces();
-	drawHighlightedCells();
+	drawHighlightedCells(now);
 
 	animationStack.add(redrawBoard);
 }
@@ -129,6 +131,15 @@ function drawCheckerboard(){
 		}
 	}
 }
+function moveToken(){
+	if(selectedToken !== null && selectedToken.side === players[0]){
+		// TODO: Perform move.
+
+		selectedToken = null;
+		moveTimestamp = Date.now();
+		player.push(players.shift());
+	}
+}
 function drawPieces(){
 	let baselineOffset = CELL_SIZE/10;
 	canvasContext.font = CELL_SIZE+'px Arial';
@@ -137,21 +148,32 @@ function drawPieces(){
 	canvasContext.textBaseline = 'middle';
 
 	pieces.forEach(piece => {
-		canvasContext.fillStyle = piece.side.colorString;
+		canvasContext.fillStyle = piece.side.color.toString();
 		let symbol = piece.piece.name.substr(0,1);
 		canvasContext.fillText(symbol, (piece.position.X-.5)*CELL_SIZE, (piece.position.Y-.5)*CELL_SIZE + baselineOffset);
 		canvasContext.strokeText(symbol, (piece.position.X-.5)*CELL_SIZE, (piece.position.Y-.5)*CELL_SIZE + baselineOffset);
 	});
 }
-function drawHighlightedCells(){
-	let now = Date.now() - mouseHoverHighlightTimeStamp;
+function drawHighlightedCells(now){
 	let localList = highlightedCells.slice(0);
+	if(selectedToken == null){
+		pieces.forEach(piece => {
+			if(piece.side === players[0]){
+				localList.push([piece.position, piece.side.color, moveTimestamp]);
+			}
+		});
+	}
+	else if(selectedToken.side === players[0]){
+		localList.push();
+	}
 	if(mouseHoverHighlight != null){
-		localList.push([mouseHoverHighlight, new Color(0,255,255)]);
+		localList.push([mouseHoverHighlight, new Color(0,255,255), mouseHoverHighlightTimestamp]);
 	}
 	localList.forEach(highlight => {
 		let cell = highlight[0];
-		let color = highlight[1];
+		let color = new Color(highlight[1]);
+		let flashFrom = highlight[2];
+		let flashTimespan = flashFrom === undefined ? undefined : now - flashFrom;
 
 		let halfWidth = 2.5;
 		canvasContext.lineWidth = halfWidth*2;
@@ -168,7 +190,7 @@ function drawHighlightedCells(){
 
 			sides.forEach((side, index) => {
 				let offsetValue = CELL_SIZE*index;
-				offsetValue = (now/10)%CELL_SIZE + offsetValue;
+				offsetValue = (flashTimespan/10)%CELL_SIZE + offsetValue;
 				var gradient = canvasContext.createLinearGradient(side[0].X + offsetValue, side[0].Y + offsetValue, side[1].X - offsetValue, side[1].Y - offsetValue);
 				gradient.addColorStop(0, 'Red');
 				gradient.addColorStop(1, 'Transparent');
@@ -188,12 +210,14 @@ function drawHighlightedCells(){
 				new Position(cellPixelPos.X + CELL_SIZE - halfWidth, cellPixelPos.Y + halfWidth)
 			];
 
-			let min = 64;
-			let max = 190;
-		//	let nowSlow = now/10;
-		//	let offsetValue = Math.abs((nowSlow%512)-256)*(max/256) + 256*(min/256);
-			let offsetValue = min + (max-min)*Math.abs(Math.sin(now/1500));
-			color.A = offsetValue;
+			if(flashTimespan !== undefined){
+				let min = 64;
+				let max = 190;
+			//	let nowSlow = now/10;
+			//	let offsetValue = Math.abs((nowSlow%512)-256)*(max/256) + 256*(min/256);
+				let offsetValue = min + (max-min)*Math.abs(Math.sin(flashTimespan/1500));
+				color.A = offsetValue;
+			}
 			canvasContext.strokeStyle = color.toRGBAString();
 			canvasContext.beginPath();
 			let startPos = sidePos[3];
