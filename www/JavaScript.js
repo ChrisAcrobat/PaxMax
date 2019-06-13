@@ -46,6 +46,7 @@ function onload(){
 	animationStack = new AnimationStack();
 	elementCanvas = document.getElementById('canvas');
 	elementCanvas.onmousemove = moveEvent;
+	elementCanvas.onclick = mouseClick;
 	canvasContext = elementCanvas.getContext('2d');
 	colorWhite = new Color('#FFF');
 	colorBlack = new Color('#000');
@@ -80,6 +81,12 @@ function moveEvent(event){
 			mouseHoverHighlightTimestamp = Date.now() + 1500;
 		}
 	}
+}
+function mouseClick(event){
+	let pos = getEventPos(event);
+	let x = Math.ceil(pos.X/CELL_SIZE);
+	let y = Math.ceil(pos.Y/CELL_SIZE);
+	console.log({'x':x,'y':y});
 }
 function getEventPos(event, raw=false){
 	if(raw){return new Position(event.offsetX, event.offsetY);}
