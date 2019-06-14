@@ -186,7 +186,7 @@ function drawPieces(){
 }
 function drawHighlightedCells(now){
 	let localList = highlightedCells.slice(0);
-	if(selectedToken == null){
+	if(selectedToken === null){
 		pieces.forEach(piece => {
 			if(piece.side === players[0]){
 				localList.push([piece.position, piece.side.color, moveTimestamp]);
@@ -194,7 +194,8 @@ function drawHighlightedCells(now){
 		});
 	}
 	else if(selectedToken.side === players[0]){
-		localList.push();
+		localList.push(selectedToken.position, selectedToken.side.color, moveTimestamp);
+		// TODO: Highlight posible positions.
 	}
 	if(mouseHoverHighlight != null){
 		localList.push([mouseHoverHighlight, new Color(0,255,255), mouseHoverHighlightTimestamp]);
