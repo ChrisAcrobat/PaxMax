@@ -6,7 +6,7 @@ const BOARD_SIZE_X = 5;
 const BOARD_SIZE_Y = 9;
 
 class Side{
-	constructor(nam='', color=Color()){
+	constructor(name='', color=new Color()){
 		this.name = name;
 		this.color = color;
 	}
@@ -19,8 +19,8 @@ class PieceClass{
 	}
 }
 class Piece{
-	constructor(piece=new PieceClass(), side=new Side(), position=new Position()){
-		this.piece = piece;
+	constructor(pieceClass=new PieceClass(), side=new Side(), position=new Position()){
+		this.class = pieceClass;
 		this.side = side;
 		this.position = position;
 	}
@@ -86,7 +86,28 @@ function mouseClick(event){
 	let pos = getEventPos(event);
 	let x = Math.ceil(pos.X/CELL_SIZE);
 	let y = Math.ceil(pos.Y/CELL_SIZE);
-	console.log({'x':x,'y':y});
+	let token = pieces.find(piece => piece.position.X === x && piece.position.Y === y);
+	if(token === undefined){
+		if(selectedToken !== null){
+			let c = selectedToken.class;
+			let posX = selectedToken.position.X;
+			let posY = selectedToken.position.Y;
+			if((posX === x && [posY + c.reachStraight, posY - c.reachStraight].includes(y))
+			|| (posY === y && [posX + c.reachStraight, posX - c.reachStraight].includes(x))
+			|| (posX + c.reachDiagonally === x && posY + c.reachDiagonally === y)
+			|| (posX - c.reachDiagonally === x && posY + c.reachDiagonally === y)
+			|| (posX - c.reachDiagonally === x && posY - c.reachDiagonally === y)
+			|| (posX + c.reachDiagonally === x && posY - c.reachDiagonally === y)){
+				moveToken(new Position(x, y))
+			}
+		}
+		selectedToken = null;
+	}
+	else{
+		if(token.side === players[0]){
+			selectedToken = token;
+		}
+	}
 }
 function getEventPos(event, raw=false){
 	if(raw){return new Position(event.offsetX, event.offsetY);}
@@ -138,13 +159,15 @@ function drawCheckerboard(){
 		}
 	}
 }
-function moveToken(){
+function moveToken(newPosition=new Position()){
 	if(selectedToken !== null && selectedToken.side === players[0]){
-		// TODO: Perform move.
+		// TODO: Animate move.
+		selectedToken.position.X = newPosition.X;
+		selectedToken.position.Y = newPosition.Y;
 
 		selectedToken = null;
 		moveTimestamp = Date.now();
-		player.push(players.shift());
+		players.push(players.shift());
 	}
 }
 function drawPieces(){
@@ -156,7 +179,7 @@ function drawPieces(){
 
 	pieces.forEach(piece => {
 		canvasContext.fillStyle = piece.side.color.toString();
-		let symbol = piece.piece.name.substr(0,1);
+		let symbol = piece.class.name.substr(0,1);
 		canvasContext.fillText(symbol, (piece.position.X-.5)*CELL_SIZE, (piece.position.Y-.5)*CELL_SIZE + baselineOffset);
 		canvasContext.strokeText(symbol, (piece.position.X-.5)*CELL_SIZE, (piece.position.Y-.5)*CELL_SIZE + baselineOffset);
 	});
