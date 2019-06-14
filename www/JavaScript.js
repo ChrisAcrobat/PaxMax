@@ -194,7 +194,7 @@ function drawHighlightedCells(now){
 		});
 	}
 	else if(selectedToken.side === players[0]){
-		localList.push(selectedToken.position, selectedToken.side.color, moveTimestamp);
+		localList.push([selectedToken.position, selectedToken.side.color, moveTimestamp]);
 		// TODO: Highlight posible positions.
 	}
 	if(mouseHoverHighlight != null){
