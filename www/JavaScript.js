@@ -83,6 +83,23 @@ function moveEvent(event){
 		}
 	}
 }
+function getPossiblePositions(piece=new piece()){
+	let c = piece.class;
+	let posX = piece.position.X;
+	let posY = piece.position.Y;
+
+	let returnList = Array();
+	returnList.push(new Position(posX - c.reachStraight, posY));
+	returnList.push(new Position(posX + c.reachStraight, posY));
+	returnList.push(new Position(posX, posY + c.reachStraight));
+	returnList.push(new Position(posX, posY - c.reachStraight));
+
+	returnList.push(new Position(posX - c.reachDiagonally, posY + c.reachDiagonally));
+	returnList.push(new Position(posX + c.reachDiagonally, posY + c.reachDiagonally));
+	returnList.push(new Position(posX + c.reachDiagonally, posY - c.reachDiagonally));
+	returnList.push(new Position(posX - c.reachDiagonally, posY - c.reachDiagonally));
+	return returnList;
+}
 function mouseClick(event){
 	let pos = getEventPos(event);
 	let x = Math.ceil(pos.X/CELL_SIZE);
@@ -90,15 +107,7 @@ function mouseClick(event){
 	let token = pieces.find(piece => piece.position.X === x && piece.position.Y === y);
 	if(token === undefined){
 		if(selectedToken !== null){
-			let c = selectedToken.class;
-			let posX = selectedToken.position.X;
-			let posY = selectedToken.position.Y;
-			if((posX === x && [posY + c.reachStraight, posY - c.reachStraight].includes(y))
-			|| (posY === y && [posX + c.reachStraight, posX - c.reachStraight].includes(x))
-			|| (posX + c.reachDiagonally === x && posY + c.reachDiagonally === y)
-			|| (posX - c.reachDiagonally === x && posY + c.reachDiagonally === y)
-			|| (posX - c.reachDiagonally === x && posY - c.reachDiagonally === y)
-			|| (posX + c.reachDiagonally === x && posY - c.reachDiagonally === y)){
+			if(undefined !== getPossiblePositions(selectedToken).find(position => position.X === x && position.Y === y)){
 				moveToken(new Position(x, y))
 			}
 		}
