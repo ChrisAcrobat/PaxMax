@@ -23,6 +23,7 @@ class Piece{
 		this.class = pieceClass;
 		this.side = side;
 		this.position = position;
+		this.paxed = false;
 	}
 }
 
@@ -149,7 +150,7 @@ function drawCheckerboard(){
 	canvasContext.lineWidth = 1;
 	for(let index_x = 0; index_x < BOARD_SIZE_X; index_x++){
 		for(let index_y = 0; index_y < BOARD_SIZE_Y; index_y++){
-			if((index_x+index_y)%2 == 0){
+			if((index_x+index_y)%2 === 0){
 				canvasContext.fillStyle = colorBlack.toString();
 			}
 			else{
@@ -182,6 +183,29 @@ function drawPieces(){
 		let symbol = piece.class.name.substr(0,1);
 		canvasContext.fillText(symbol, (piece.position.X-.5)*CELL_SIZE, (piece.position.Y-.5)*CELL_SIZE + baselineOffset);
 		canvasContext.strokeText(symbol, (piece.position.X-.5)*CELL_SIZE, (piece.position.Y-.5)*CELL_SIZE + baselineOffset);
+	});
+
+	canvasContext.font = Math.floor(CELL_SIZE/2)+'px Arial';
+	canvasContext.save();
+	pieces.forEach(piece => {
+		if(piece.paxed){
+			let x = (piece.position.X-.5)*CELL_SIZE;
+			let y = (piece.position.Y-.5)*CELL_SIZE;
+
+			canvasContext.fillStyle = (piece.side === players[0] ? players[1] : players[0]).color.toString();
+			if((piece.position.X+piece.position.Y)%2 === 0){
+				canvasContext.strokeStyle = 'white';
+			}
+			else{
+				canvasContext.strokeStyle = 'black';
+			}
+			canvasContext.save();
+			canvasContext.translate(x, y);
+			canvasContext.rotate(-Math.PI / 4);
+			canvasContext.fillText('Pax', 0, 0);
+			canvasContext.strokeText('Pax', 0, 0);
+			canvasContext.restore();
+		}
 	});
 }
 function drawHighlightedCells(now){
