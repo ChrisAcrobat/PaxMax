@@ -42,6 +42,7 @@ var selectedToken = null;
 var mouseHoverHighlight = null;
 var mouseHoverHighlightTimestamp = Date.now();
 var moveTimestamp = Date.now();
+var possiblePositionColor = undefined;
 function onload(){
 	// Init
 	animationStack = new AnimationStack();
@@ -51,6 +52,7 @@ function onload(){
 	canvasContext = elementCanvas.getContext('2d');
 	colorWhite = new Color('#FFF');
 	colorBlack = new Color('#000');
+	possiblePositionColor = new Color('#0FF');
 	mouseHoverHighlight = new Position();
 
 	let sideRed = new Side('Red', new Color('#F00'));
@@ -83,22 +85,23 @@ function moveEvent(event){
 		}
 	}
 }
-function getPossiblePositions(piece=new piece()){
+function isPossiblePosition(piece=new piece(), newPos=new Position()){
 	let c = piece.class;
-	let posX = piece.position.X;
-	let posY = piece.position.Y;
+	let pos = piece.position;
 
+	// Check straight
+	if((pos.X === newPos.X && pos.Y - c.reachStraight < newPos.Y && newPos.Y < pos.Y + c.reachStraight)
+	|| (pos.Y === newPos.Y && pos.X - c.reachStraight < newPos.X && newPos.X < pos.X + c.reachStraight)){
+		return true;
+	}
+
+	// Check diagonally
 	let returnList = Array();
-	returnList.push(new Position(posX - c.reachStraight, posY));
-	returnList.push(new Position(posX + c.reachStraight, posY));
-	returnList.push(new Position(posX, posY + c.reachStraight));
-	returnList.push(new Position(posX, posY - c.reachStraight));
-
-	returnList.push(new Position(posX - c.reachDiagonally, posY + c.reachDiagonally));
-	returnList.push(new Position(posX + c.reachDiagonally, posY + c.reachDiagonally));
-	returnList.push(new Position(posX + c.reachDiagonally, posY - c.reachDiagonally));
-	returnList.push(new Position(posX - c.reachDiagonally, posY - c.reachDiagonally));
-	return returnList;
+	returnList.push(new Position(pos.X - c.reachDiagonally, pos.Y + c.reachDiagonally));
+	returnList.push(new Position(pos.X + c.reachDiagonally, pos.Y + c.reachDiagonally));
+	returnList.push(new Position(pos.X + c.reachDiagonally, pos.Y - c.reachDiagonally));
+	returnList.push(new Position(pos.X - c.reachDiagonally, pos.Y - c.reachDiagonally));
+	return false;
 }
 function mouseClick(event){
 	let pos = getEventPos(event);
@@ -107,8 +110,9 @@ function mouseClick(event){
 	let token = pieces.find(piece => piece.position.X === x && piece.position.Y === y);
 	if(token === undefined){
 		if(selectedToken !== null){
-			if(undefined !== getPossiblePositions(selectedToken).find(position => position.X === x && position.Y === y)){
-				moveToken(new Position(x, y))
+			let newPos = new Position(x, y);
+			if(isPossiblePosition(selectedToken, newPos)){
+				moveToken(newPos)
 			}
 		}
 		selectedToken = null;
@@ -228,7 +232,14 @@ function drawHighlightedCells(now){
 	}
 	else if(selectedToken.side === players[0]){
 		localList.push([selectedToken.position, selectedToken.side.color, moveTimestamp]);
-		// TODO: Highlight posible positions.
+		for(let index_x = 0; index_x < BOARD_SIZE_X; index_x++){
+			for(let index_y = 0; index_y < BOARD_SIZE_Y; index_y++){
+				let pos = new Position(index_x, index_y);
+				if(isPossiblePosition(selectedToken, pos)){
+					localList.push([pos, possiblePositionColor, moveTimestamp]);
+				}
+			}
+		}
 	}
 	if(mouseHoverHighlight != null){
 		localList.push([mouseHoverHighlight, new Color(0,255,255), mouseHoverHighlightTimestamp]);
