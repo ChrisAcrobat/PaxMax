@@ -73,18 +73,28 @@ function isPossiblePosition(piece=new piece(), newPos=new Position()){
 	let c = piece.class;
 	let pos = piece.position;
 
+	// Check occupation
+	if(undefined !== pieces.find(p => p.position.X === newPos.X && p.position.Y === newPos.Y)){
+		return false;
+	}
+
 	// Check straight
-	if((pos.X === newPos.X && pos.Y - c.reachStraight < newPos.Y && newPos.Y < pos.Y + c.reachStraight)
-	|| (pos.Y === newPos.Y && pos.X - c.reachStraight < newPos.X && newPos.X < pos.X + c.reachStraight)){
+	if((pos.X === newPos.X && pos.Y - c.reachStraight - 1 < newPos.Y && newPos.Y < pos.Y + c.reachStraight + 1)
+	|| (pos.Y === newPos.Y && pos.X - c.reachStraight - 1 < newPos.X && newPos.X < pos.X + c.reachStraight + 1)){
 		return true;
 	}
 
 	// Check diagonally
-	let returnList = Array();
-	returnList.push(new Position(pos.X - c.reachDiagonally, pos.Y + c.reachDiagonally));
-	returnList.push(new Position(pos.X + c.reachDiagonally, pos.Y + c.reachDiagonally));
-	returnList.push(new Position(pos.X + c.reachDiagonally, pos.Y - c.reachDiagonally));
-	returnList.push(new Position(pos.X - c.reachDiagonally, pos.Y - c.reachDiagonally));
+	let deltaX = Math.abs(newPos.X - pos.X);
+	let deltaY = Math.abs(newPos.Y - pos.Y);
+	if(deltaX === deltaY){
+		if((pos.X - c.reachDiagonally - 1 < newPos.X && newPos.X < pos.X + c.reachDiagonally + 1)
+		|| (pos.Y - c.reachDiagonally - 1 < newPos.Y && newPos.Y < pos.Y + c.reachDiagonally + 1)){
+			return true;
+		}
+	}
+
+	// Default
 	return false;
 }
 function mouseClick(event){
@@ -216,8 +226,8 @@ function drawHighlightedCells(now){
 	}
 	else if(selectedToken.side === players[0]){
 		localList.push([selectedToken.position, selectedToken.side.color, moveTimestamp]);
-		for(let index_x = 0; index_x < BOARD_SIZE_X; index_x++){
-			for(let index_y = 0; index_y < BOARD_SIZE_Y; index_y++){
+		for(let index_x = 1; index_x <= BOARD_SIZE_X; index_x++){
+			for(let index_y = 1; index_y <= BOARD_SIZE_Y; index_y++){
 				let pos = new Position(index_x, index_y);
 				if(isPossiblePosition(selectedToken, pos)){
 					localList.push([pos, possiblePositionColor, moveTimestamp]);
