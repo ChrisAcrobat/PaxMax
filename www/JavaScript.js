@@ -39,21 +39,17 @@ var players = new Array();
 var pieces = new Array();
 var highlightedCells = new Array();
 var selectedToken = null;
-var mouseHoverHighlight = null;
-var mouseHoverHighlightTimestamp = Date.now();
 var moveTimestamp = Date.now();
 var possiblePositionColor = undefined;
 function onload(){
 	// Init
 	animationStack = new AnimationStack();
 	elementCanvas = document.getElementById('canvas');
-	elementCanvas.onmousemove = moveEvent;
 	elementCanvas.onclick = mouseClick;
 	canvasContext = elementCanvas.getContext('2d');
 	colorWhite = new Color('#FFF');
 	colorBlack = new Color('#000');
-	possiblePositionColor = new Color('#0FF');
-	mouseHoverHighlight = new Position();
+	possiblePositionColor = new Color('#0F0');
 
 	let sideRed = new Side('Red', new Color('#F00'));
 	players.push(sideRed);
@@ -72,18 +68,6 @@ function onload(){
 	elementCanvas.height = BOARD_SIZE_Y*CELL_SIZE;
 	redrawBoard();
 	elementCanvas.classList.remove('hidden');
-}
-function moveEvent(event){
-	let pos = getEventPos(event);
-	let x = Math.ceil(pos.X/CELL_SIZE);
-	let y = Math.ceil(pos.Y/CELL_SIZE);
-	if(0 < x && x <= BOARD_SIZE_X && 0 < y && y <= BOARD_SIZE_Y){
-		let cell = new Position(x, y);
-		if(cell.X != mouseHoverHighlight.X || cell.Y != mouseHoverHighlight.Y){
-			mouseHoverHighlight = cell;
-			mouseHoverHighlightTimestamp = Date.now() + 1500;
-		}
-	}
 }
 function isPossiblePosition(piece=new piece(), newPos=new Position()){
 	let c = piece.class;
@@ -240,9 +224,6 @@ function drawHighlightedCells(now){
 				}
 			}
 		}
-	}
-	if(mouseHoverHighlight != null){
-		localList.push([mouseHoverHighlight, new Color(0,255,255), mouseHoverHighlightTimestamp]);
 	}
 	localList.forEach(highlight => {
 		let cell = highlight[0];
