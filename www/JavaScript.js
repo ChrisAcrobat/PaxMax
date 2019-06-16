@@ -122,7 +122,7 @@ function mouseClick(event){
 		selectedToken = null;
 	}
 	else{
-		if(token.side === players[0]){
+		if(token.side === players[0] && !token.paxed){
 			selectedToken = token;
 		}
 	}
@@ -229,7 +229,7 @@ function drawHighlightedCells(now){
 	let localList = highlightedCells.slice(0);
 	if(selectedToken === null){
 		pieces.forEach(piece => {
-			if(piece.side === players[0]){
+			if(piece.side === players[0] && !piece.paxed){
 				localList.push([piece.position, piece.side.color, moveTimestamp]);
 			}
 		});
