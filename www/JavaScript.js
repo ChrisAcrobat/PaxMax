@@ -185,8 +185,24 @@ function moveToken(newPosition=new Position()){
 
 		selectedToken = null;
 		moveTimestamp = Date.now();
-		players.push(players.shift());
+		if(checkPaxed()){
+			//
+		}
+		else{
+			players.push(players.shift());
+		}
 	}
+}
+function checkPaxed(){
+	pieces.forEach(piece => {
+		if((2 === pieces.filter(p => piece.position.X === p.position.X && 1 === Math.abs(piece.position.Y - p.position.Y)).length)
+		|| (2 === pieces.filter(p => piece.position.Y === p.position.Y && 1 === Math.abs(piece.position.X - p.position.X)).length)){
+			piece.paxed = true;
+		}
+	});
+
+	let gameOver = false;
+	return gameOver;
 }
 function drawPieces(){
 	let baselineOffset = CELL_SIZE/10;
