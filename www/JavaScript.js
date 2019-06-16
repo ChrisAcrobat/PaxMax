@@ -241,7 +241,7 @@ function drawHighlightedCells(now){
 				let pos = new Position(index_x, index_y);
 				if(isPossiblePosition(selectedToken, pos)){
 					if(mousePosition.X === index_x && mousePosition.Y === index_y){
-						localList.push([pos, mouseHoverColor, moveTimestamp]);
+						localList.push([pos, mouseHoverColor, undefined]);
 					}
 					else{
 						localList.push([pos, possiblePositionColor, moveTimestamp]);
