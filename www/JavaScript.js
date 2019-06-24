@@ -194,14 +194,40 @@ function moveToken(newPosition=new Position()){
 	}
 }
 function checkPaxed(){
+	// Check PaxMax's
+	pieces.forEach(piece_1 => {
+		pieces.filter(p => p !== piece_1).forEach(piece_2 => {
+			if(piece_1.side === piece_2.side && piece_1.position.X === piece_2.position.X && 3 === Math.abs(piece_1.position.Y - piece_2.position.Y)){
+				// Check pieces between, make Paxed.
+				console.log('PaxMax');
+				console.log(undefined);
+			}
+			if(piece_1.side === piece_2.side && piece_1.position.Y === piece_2.position.Y && 3 === Math.abs(piece_1.position.X - piece_2.position.X)){
+				// Check pieces between, make Paxed.
+				console.log('PaxMax');
+				console.log(undefined);
+			}
+		});
+	});
+
+	// Check Pax's
 	pieces.forEach(piece => {
 		if((2 === pieces.filter(p => piece.side !== p.side && piece.position.X === p.position.X && 1 === Math.abs(piece.position.Y - p.position.Y)).length)
 		|| (2 === pieces.filter(p => piece.side !== p.side && piece.position.Y === p.position.Y && 1 === Math.abs(piece.position.X - p.position.X)).length)){
 			piece.paxed = true;
+			console.log('Pax');
+			console.log(piece);
 		}
 	});
 
-	let gameOver = false;
+	var groupBy = function(xs, key){	// Source: https://stackoverflow.com/a/34890276
+		return xs.reduce(function(rv, x){
+			(rv[x[key]] = rv[x[key]] || []).push(x);
+			return rv;
+		}, {});
+	};
+	let gameOver = groupBy(pieces.filter(p => !p.paxed), 'side').length === 1;
+	console.log('Game Over: ' + gameOver);
 	return gameOver;
 }
 function drawPieces(){
