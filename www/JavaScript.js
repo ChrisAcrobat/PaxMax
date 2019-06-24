@@ -195,8 +195,8 @@ function moveToken(newPosition=new Position()){
 }
 function checkPaxed(){
 	pieces.forEach(piece => {
-		if((2 === pieces.filter(p => piece.position.X === p.position.X && 1 === Math.abs(piece.position.Y - p.position.Y)).length)
-		|| (2 === pieces.filter(p => piece.position.Y === p.position.Y && 1 === Math.abs(piece.position.X - p.position.X)).length)){
+		if((2 === pieces.filter(p => piece.side !== p.side && piece.position.X === p.position.X && 1 === Math.abs(piece.position.Y - p.position.Y)).length)
+		|| (2 === pieces.filter(p => piece.side !== p.side && piece.position.Y === p.position.Y && 1 === Math.abs(piece.position.X - p.position.X)).length)){
 			piece.paxed = true;
 		}
 	});
