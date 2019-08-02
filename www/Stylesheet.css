@@ -1,0 +1,13 @@
+h1{
+	display: inline;
+}
+
+#canvas{
+	display: block;
+	border: 3px solid burlywood;
+}
+
+.hidden
+{
+	display: none !important;
+}
