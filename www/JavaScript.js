@@ -43,6 +43,7 @@ var moveTimestamp = Date.now();
 var mousePosition = undefined;
 var mouseHoverColor = undefined;
 var possiblePositionColor = undefined;
+var gameIsLive = true;
 function onload(){
 	// Init
 	animationStack = new AnimationStack();
@@ -159,9 +160,11 @@ function redrawBoard(){
 	let now = Date.now();
 	drawCheckerboard();
 	drawPieces();
-	drawHighlightedCells(now);
 
-	animationStack.add(redrawBoard);
+	if(gameIsLive){
+		drawHighlightedCells(now);
+		animationStack.add(redrawBoard);	
+	}
 }
 function drawCheckerboard(){
 	canvasContext.lineWidth = 1;
@@ -186,7 +189,9 @@ function moveToken(newPosition=new Position()){
 		selectedToken = null;
 		moveTimestamp = Date.now();
 		if(checkPaxed()){
-			//
+			gameIsLive = false;
+			let winner = document.getElementById('winner');
+			winner.innerHTML = "Winner: " + players[0].name;
 		}
 		else{
 			players.push(players.shift());
@@ -195,38 +200,47 @@ function moveToken(newPosition=new Position()){
 }
 function checkPaxed(){
 	// Check PaxMax's
+	// TODO: Add possibility for paxing diagonally.
 	pieces.forEach(piece_1 => {
-		pieces.filter(p => p !== piece_1).forEach(piece_2 => {
-			if(piece_1.side === piece_2.side && piece_1.position.X === piece_2.position.X && 3 === Math.abs(piece_1.position.Y - piece_2.position.Y)){
+		pieces.filter(p => p !== piece_1 && p.side === piece_1.side).forEach(piece_2 => {
+			let minPos_x = Math.min(piece_1.position.X, piece_2.position.X);
+			let minPos_y = Math.min(piece_1.position.Y, piece_2.position.Y);
+			if(piece_1.position.X === piece_2.position.X && 3 === Math.abs(piece_1.position.Y - piece_2.position.Y)){
 				// Check pieces between, make Paxed.
-				console.log('PaxMax');
-				console.log(undefined);
+				let midPiece_1 = pieces.find(p => p.side !== piece_1.side && p.position.X === piece_1.position.X && p.position.Y === minPos_y+1);
+				let midPiece_2 = pieces.find(p => p.side !== piece_1.side && p.position.X === piece_1.position.X && p.position.Y === minPos_y+2);
+				if(midPiece_1 !== undefined && midPiece_2 !== undefined){
+					midPiece_1.paxed = true;
+					midPiece_2.paxed = true;
+				}
 			}
-			if(piece_1.side === piece_2.side && piece_1.position.Y === piece_2.position.Y && 3 === Math.abs(piece_1.position.X - piece_2.position.X)){
+			if(piece_1.position.Y === piece_2.position.Y && 3 === Math.abs(piece_1.position.X - piece_2.position.X)){
 				// Check pieces between, make Paxed.
-				console.log('PaxMax');
-				console.log(undefined);
+				let midPiece_1 = pieces.find(p => p.side !== piece_1.side && p.position.X === minPos_x+1 && p.position.Y === piece_1.position.Y);
+				let midPiece_2 = pieces.find(p => p.side !== piece_1.side && p.position.X === minPos_x+2 && p.position.Y === piece_1.position.Y);
+				if(midPiece_1 !== undefined && midPiece_2 !== undefined){
+					midPiece_1.paxed = true;
+					midPiece_2.paxed = true;
+				}
 			}
 		});
 	});
 
 	// Check Pax's
+	// TODO: Add possibility for paxing diagonally.
 	pieces.forEach(piece => {
 		if((2 === pieces.filter(p => piece.side !== p.side && piece.position.X === p.position.X && 1 === Math.abs(piece.position.Y - p.position.Y)).length)
 		|| (2 === pieces.filter(p => piece.side !== p.side && piece.position.Y === p.position.Y && 1 === Math.abs(piece.position.X - p.position.X)).length)){
 			piece.paxed = true;
-			console.log('Pax');
-			console.log(piece);
 		}
 	});
 
 	// Check game over
-	let sideCounts = {};
+	let peicesLeftPerSide = {};
 	pieces.filter(p => !p.paxed).forEach(piece => {
-		sideCounts.hasOwnProperty(piece.side) ? sideCounts[piece.side] = 1 : sideCounts[piece.side] += 1;
+		peicesLeftPerSide.hasOwnProperty(piece.side.name) ? peicesLeftPerSide[piece.side.name] += 1 : peicesLeftPerSide[piece.side.name] = 1;
 	});
-	let gameOver = Object.keys(sideCounts).length === 1;
-	console.log('Game Over: ' + gameOver);
+	let gameOver = Object.keys(peicesLeftPerSide).length === 1;
 	return gameOver;
 }
 function drawPieces(){
