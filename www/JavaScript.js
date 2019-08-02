@@ -220,13 +220,12 @@ function checkPaxed(){
 		}
 	});
 
-	var groupBy = function(xs, key){	// Source: https://stackoverflow.com/a/34890276
-		return xs.reduce(function(rv, x){
-			(rv[x[key]] = rv[x[key]] || []).push(x);
-			return rv;
-		}, {});
-	};
-	let gameOver = groupBy(pieces.filter(p => !p.paxed), 'side').length === 1;
+	// Check game over
+	let sideCounts = {};
+	pieces.filter(p => !p.paxed).forEach(piece => {
+		sideCounts.hasOwnProperty(piece.side) ? sideCounts[piece.side] = 1 : sideCounts[piece.side] += 1;
+	});
+	let gameOver = Object.keys(sideCounts).length === 1;
 	console.log('Game Over: ' + gameOver);
 	return gameOver;
 }
